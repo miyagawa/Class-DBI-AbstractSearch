@@ -2,7 +2,7 @@ package Class::DBI::AbstractSearch;
 
 use strict;
 use vars qw($VERSION @EXPORT);
-$VERSION = 0.02;
+$VERSION = 0.03;
 
 require Exporter;
 *import = \&Exporter::import;
@@ -14,16 +14,16 @@ sub search_where {
     my $class = shift;
     my $where = (ref $_[0]) ? $_[0]          : { @_ };
     my $attr  = (ref $_[0]) ? $_[1]          : undef;
-    my $order = ($attr)     ? $attr->{order} : undef;
+    my $order = ($attr)     ? delete($attr->{order}) : undef;
 
     $class->can('retrieve_from_sql') or do {
 	require Carp;
 	Carp::croak("$class should inherit from Class::DBI >= 0.90");
     };
-    my $sql = SQL::Abstract->new; # XXX how do we supply options here?
-    my($where, @bind) = $sql->where($where,$order);
-    $where =~ s/^\s*WHERE\s*//i;
-    return $class->retrieve_from_sql($where, @bind);
+    my $sql = SQL::Abstract->new(%$attr);
+    my($phrase, @bind) = $sql->where($where, $order);
+    $phrase =~ s/^\s*WHERE\s*//i;
+    return $class->retrieve_from_sql($phrase, @bind);
 }
 
 1;
@@ -38,7 +38,7 @@ Class::DBI::AbstractSearch - Abstract Class::DBI's SQL with SQL::Abstract
   package CD::Music;
   use Class::DBI::AbstractSearch;
 
-  pacage main;
+  package main;
   my @music = CD::Music->search_where(
       artist => [ 'Ozzy', 'Kelly' ],
       status => { '!=', 'outdated' },
@@ -64,14 +64,14 @@ Using this module adds following methods into your data class.
 
   $class->search_where(%where);
 
-Takes hash to specify WHERE clause. See L<SQL::Abstract> for hash
+Takes a hash to specify WHERE clause. See L<SQL::Abstract> for hash
 options.
 
   $class->search_where(\%where,\%attrs);
 
-Takes hash reference to specify WHERE clause. See L<SQL::Abstract> 
+Takes hash reference to specify WHERE clause. See L<SQL::Abstract>
 for hash options. Takes a hash reference to specify additional query
-attributes. Valid attributes are :
+attributes. Class::DBI::AbstractSearch uses these attributes:
 
 =over 4
 
@@ -84,10 +84,16 @@ your query.
 
 =back
 
+Any other attributes are passed to the SQL::Abstract constructor,
+and can be used to control how queries are created.  For example,
+to use 'AND' instead of 'OR' by default, use:
+
+    $clsas->search_where(\%where, { logic => 'AND' });
+
 =head1 AUTHOR
 
 Tatsuhiko Miyagawa E<lt>miyagawa@bulknews.netE<gt> with some help from
-cdbi-talk maling list, especially:
+cdbi-talk mailing list, especially:
 
   Tim Bunce
   Simon Wilcox
