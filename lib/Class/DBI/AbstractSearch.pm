@@ -2,7 +2,7 @@ package Class::DBI::AbstractSearch;
 
 use strict;
 use vars qw($VERSION @EXPORT);
-$VERSION = 0.01;
+$VERSION = 0.02;
 
 require Exporter;
 *import = \&Exporter::import;
@@ -11,13 +11,17 @@ require Exporter;
 use SQL::Abstract;
 
 sub search_where {
-    my($class, %where) = @_;
+    my $class = shift;
+    my $where = (ref $_[0]) ? $_[0]          : { @_ };
+    my $attr  = (ref $_[0]) ? $_[1]          : undef;
+    my $order = ($attr)     ? $attr->{order} : undef;
+
     $class->can('retrieve_from_sql') or do {
 	require Carp;
 	Carp::croak("$class should inherit from Class::DBI >= 0.90");
     };
     my $sql = SQL::Abstract->new; # XXX how do we supply options here?
-    my($where, @bind) = $sql->where(\%where);
+    my($where, @bind) = $sql->where($where,$order);
     $where =~ s/^\s*WHERE\s*//i;
     return $class->retrieve_from_sql($where, @bind);
 }
@@ -40,6 +44,11 @@ Class::DBI::AbstractSearch - Abstract Class::DBI's SQL with SQL::Abstract
       status => { '!=', 'outdated' },
   );
 
+  my @misc = CD::Music->search_where(
+      { artist => [ 'Ozzy', 'Kelly' ],
+        status => { '!=', 'outdated' } },
+      { order  => "reldate DESC" });
+
 =head1 DESCRIPTION
 
 Class::DBI::AbstractSearch is a Class::DBI plugin to glue
@@ -55,8 +64,25 @@ Using this module adds following methods into your data class.
 
   $class->search_where(%where);
 
-takes hash to specify WHERE clause. See L<SQL::Abstract> for hash
+Takes hash to specify WHERE clause. See L<SQL::Abstract> for hash
 options.
+
+  $class->search_where(\%where,\%attrs);
+
+Takes hash reference to specify WHERE clause. See L<SQL::Abstract> 
+for hash options. Takes a hash reference to specify additional query
+attributes. Valid attributes are :
+
+=over 4
+
+=item *
+
+B<order>
+
+Array reference of fields that will be used to order the results of
+your query.
+
+=back
 
 =head1 AUTHOR
 

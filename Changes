@@ -1,4 +1,9 @@
 Revision history for Perl extension Class::DBI::AbstractSearch
 
+0.02  Mon Jun 30 10:37:15 2003
+        - modified input parameters for 'search_where' to accept
+	  an optional %attrs hash ref.
+	  (Thanks to Aaron Startup Cope)
+
 0.01  Tue Feb  4 23:33:46 2003
 	- original version
