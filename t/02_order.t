@@ -35,7 +35,7 @@ for my $i (1..50) {
 
 {
     my @films = Film->search_where({title => [ "title 10", "title 20" ]},
-				   {order=>["title DESC"]});
+				   {order_by =>["title DESC"]});
     is @films, 2, "films return 2";
 
     cmp_ok($films[0]->title(),"eq","title 20","Title is title 20");

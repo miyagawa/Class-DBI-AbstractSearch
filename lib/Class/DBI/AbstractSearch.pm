@@ -2,7 +2,7 @@ package Class::DBI::AbstractSearch;
 
 use strict;
 use vars qw($VERSION @EXPORT);
-$VERSION = 0.03;
+$VERSION = 0.05;
 
 require Exporter;
 *import = \&Exporter::import;
@@ -14,7 +14,12 @@ sub search_where {
     my $class = shift;
     my $where = (ref $_[0]) ? $_[0]          : { @_ };
     my $attr  = (ref $_[0]) ? $_[1]          : undef;
-    my $order = ($attr)     ? delete($attr->{order}) : undef;
+    my $order = ($attr)     ? delete($attr->{order_by}) : undef;
+
+    # order is deprecated, but still backward compatible
+    if ($attr && exists($attr->{order})) {
+	$order = delete($attr->{order});
+    }
 
     $class->can('retrieve_from_sql') or do {
 	require Carp;
@@ -47,7 +52,7 @@ Class::DBI::AbstractSearch - Abstract Class::DBI's SQL with SQL::Abstract
   my @misc = CD::Music->search_where(
       { artist => [ 'Ozzy', 'Kelly' ],
         status => { '!=', 'outdated' } },
-      { order  => "reldate DESC" });
+      { order_by  => "reldate DESC" });
 
 =head1 DESCRIPTION
 
@@ -77,7 +82,7 @@ attributes. Class::DBI::AbstractSearch uses these attributes:
 
 =item *
 
-B<order>
+B<order_by>
 
 Array reference of fields that will be used to order the results of
 your query.

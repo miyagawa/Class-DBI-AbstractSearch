@@ -4,3 +4,4 @@ Makefile.PL
 lib/Class/DBI/AbstractSearch.pm
 t/00_compile.t
 t/01_abstract.t
+META.yml                                 Module meta-data (added by MakeMaker)
