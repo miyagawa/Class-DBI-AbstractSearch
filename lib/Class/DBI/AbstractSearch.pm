@@ -8,13 +8,15 @@ require Exporter;
 *import = \&Exporter::import;
 @EXPORT = qw(search_where);
 
-use SQL::Abstract;
+use SQL::Abstract::Limit;
 
 sub search_where {
     my $class = shift;
     my $where = (ref $_[0]) ? $_[0]          : { @_ };
     my $attr  = (ref $_[0]) ? $_[1]          : undef;
     my $order = ($attr)     ? delete($attr->{order_by}) : undef;
+    my $limit  = ($attr)    ? delete($attr->{limit})    : undef;
+    my $offset = ($attr)    ? delete($attr->{offset})   : undef;
 
     # order is deprecated, but still backward compatible
     if ($attr && exists($attr->{order})) {
@@ -25,8 +27,8 @@ sub search_where {
 	require Carp;
 	Carp::croak("$class should inherit from Class::DBI >= 0.90");
     };
-    my $sql = SQL::Abstract->new(%$attr);
-    my($phrase, @bind) = $sql->where($where, $order);
+    my $sql = SQL::Abstract::Limit->new(%$attr);
+    my($phrase, @bind) = $sql->where($where, $order, $limit, $offset);
     $phrase =~ s/^\s*WHERE\s*//i;
     return $class->retrieve_from_sql($phrase, @bind);
 }
@@ -36,7 +38,7 @@ __END__
 
 =head1 NAME
 
-Class::DBI::AbstractSearch - Abstract Class::DBI's SQL with SQL::Abstract
+Class::DBI::AbstractSearch - Abstract Class::DBI's SQL with SQL::Abstract::Limit
 
 =head1 SYNOPSIS
 
@@ -52,12 +54,15 @@ Class::DBI::AbstractSearch - Abstract Class::DBI's SQL with SQL::Abstract
   my @misc = CD::Music->search_where(
       { artist => [ 'Ozzy', 'Kelly' ],
         status => { '!=', 'outdated' } },
-      { order_by  => "reldate DESC" });
+      { order_by      => "reldate DESC",
+        limit_dialect => 'LimitOffset',
+        limit         => 1
+        offset        => 2 });
 
 =head1 DESCRIPTION
 
 Class::DBI::AbstractSearch is a Class::DBI plugin to glue
-SQL::Abstract into Class::DBI.
+SQL::Abstract::Limit into Class::DBI.
 
 =head1 METHODS
 
@@ -87,9 +92,29 @@ B<order_by>
 Array reference of fields that will be used to order the results of
 your query.
 
+=item *
+
+B<limit_dialect>
+
+Scalar, DBI handle, object class, etc. that describes the syntax model
+for a LIMIT/OFFSET SQL clause.  Please see SQL::Abstract::Limit
+for more information.
+
+=item *
+
+B<limit>
+
+Scalar value that will be used for LIMIT argument in a query.
+
+=item *
+
+B<offset>
+
+Scalar value that will be used for OFFSET argument in a query.
+
 =back
 
-Any other attributes are passed to the SQL::Abstract constructor,
+Any other attributes are passed to the SQL::Abstract::Limit constructor,
 and can be used to control how queries are created.  For example,
 to use 'AND' instead of 'OR' by default, use:
 
@@ -109,6 +134,6 @@ it under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
-L<Class::DBI>, L<SQL::Abstract>
+L<Class::DBI>, L<SQL::Abstract>, L<SQL::Abstract::Limit>
 
 =cut
