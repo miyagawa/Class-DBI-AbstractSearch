@@ -118,7 +118,7 @@ Any other attributes are passed to the SQL::Abstract::Limit constructor,
 and can be used to control how queries are created.  For example,
 to use 'AND' instead of 'OR' by default, use:
 
-    $clsas->search_where(\%where, { logic => 'AND' });
+    $class->search_where(\%where, { logic => 'AND' });
 
 =head1 AUTHOR
 

@@ -1,5 +1,9 @@
 Revision history for Perl extension Class::DBI::AbstractSearch
 
+0.06  Tue Aug 23 22:03:22 UTC 2005
+        - Now uses SQL::Abstract::Limit to allow limit SQL
+          (Thanks to David R. Baird)
+
 0.05  Wed Apr  7 18:30:27 JST 2004
 	- renamed 'order' to 'order_by', used in Class::DBI's search
 	  (Thanks to Hajime Sugawara)

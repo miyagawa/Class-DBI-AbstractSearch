@@ -5,6 +5,6 @@ WriteMakefile(
     'PREREQ_PM' => {
 	Test::More => 0.32,
 	Class::DBI => 0.90,
-	SQL::Abstract => 1.10,
+	SQL::Abstract::Limit => 0.1,
     },
 );
