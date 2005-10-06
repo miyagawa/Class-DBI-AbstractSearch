@@ -10,6 +10,8 @@ BEGIN {
 use DBI;
 
 my $DB  = "t/testdb";
+unlink $DB if -e $DB;
+
 my @DSN = ("dbi:SQLite:dbname=$DB", '', '', { AutoCommit => 1 });
 DBI->connect(@DSN)->do(<<SQL);
 CREATE TABLE film (id INTEGER NOT NULL PRIMARY KEY, title VARCHAR(32))
@@ -47,4 +49,3 @@ for my $i (1..50) {
 }
 
 END { unlink $DB if -e $DB }
-

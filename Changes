@@ -1,5 +1,9 @@
 Revision history for Perl extension Class::DBI::AbstractSearch
 
+0.07  Thu Oct  6 02:40:16 UTC 2005
+        - Fixed test suite for Windows which can't rm files while opening
+          [cpan #14935]
+
 0.06  Tue Aug 23 22:03:22 UTC 2005
         - Now uses SQL::Abstract::Limit to allow limit SQL
           (Thanks to David R. Baird)

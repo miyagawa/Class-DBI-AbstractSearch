@@ -2,7 +2,7 @@ package Class::DBI::AbstractSearch;
 
 use strict;
 use vars qw($VERSION @EXPORT);
-$VERSION = 0.05;
+$VERSION = 0.07;
 
 require Exporter;
 *import = \&Exporter::import;
